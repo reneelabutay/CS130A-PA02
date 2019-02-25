@@ -60,7 +60,7 @@ class splayTree {
   std::pair<Node*, Node*> split(int i, Node *input);
   
  private:
-  Node *rootKey;
+  Node *root;
   
 };
 

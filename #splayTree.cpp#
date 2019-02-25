@@ -42,12 +42,12 @@ Node* splayTree::splay(Node* root, int key) {
       return root;
     }
     //go on left child's left subtree
-    if(root->left->key > key) {
+    if(key < root->left->key) {
       root->left->left = splay(root->left->left, key);
       root = rightRotate(root);
 
       //go down left child's right tree
-    } else if (root->left->key < key) {
+    } else if (key > root->left->key) {
       root->left->right = splay(root->left->right, key);
       if(root->left->right != NULL) {
 	root->left = leftRotate(root->left);
