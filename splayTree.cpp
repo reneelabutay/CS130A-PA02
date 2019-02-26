@@ -14,24 +14,24 @@ splayTree::splayTree() {
 Node* newNode(int i) {
   Node *n = new Node;
   n->key = i;
-  n->left = n->right = NULL;
+  n->left = n->right n->parent = NULL;
   return n;
 }
 
-Node* splayTree::rightRotate(struct Node* oldRoot) {
+void splayTree::rightRotate(Node* oldRoot) {
   Node *y = oldRoot->left;
   oldRoot->left = y->right;
   y->right = oldRoot;
-  return y;
+  return;
 }
 
-Node* splayTree::leftRotate(struct Node* oldRoot) {
+void splayTree::leftRotate(Node* oldRoot) {
   Node *y = oldRoot->right;
   oldRoot->right = y->left;
   y->left = x;
-  return y;
+  return;
 }
-
+/*
 Node* splayTree::splay(Node* root, int key) {
   if(root == NULL || root->key == key) {
     return root;
@@ -75,16 +75,111 @@ Node* splayTree::splay(Node* root, int key) {
     }
     return leftRotate(root); //could be wrong
   }
+}*/
+
+Node* splayTree::findKey(int findMe, Node *n) {
+  if (n = NULL) {
+    return n->parent;
+  }
+  if(findMe == n->key) {
+    return n;
+  }
+  if(findMe < n->key) {
+    return findKey(findMe, n->left);
+  }
+  else {
+    return findKey(findMe, n->right);
+  }
+}
+
+void splayTree::splay(Node *current) {
+  Node *p = current->parent;
+  Node *g = current->parent->parent;
+
+  while(current != rootKey) {
+    if(p == rootKey)
+      { //single rotation (zig or zag)
+	if(p->left == current) {
+	  rightRotate(p);
+	} else {
+	  leftRotate(p);
+	}
+	rootKey = current;
+      }
+    else
+      {
+	if(g->left && g->left->left == current) {
+	  rightRotate(g);
+	  rightRotate(p);
+	  if(g == rootKey) {
+	    //grandparent is the root, so make current the new root
+	    rootKey = current;
+	  }
+	} else if(g->right && g->right->right == current) {
+	  leftRotate(g);
+	  leftRotate(p);
+	} else if(g->left && g->left->right == current) {
+	  leftRotate(p);
+	  rightRotate(g);
+	} else {
+	  rightRotate(p);
+	  leftRotate(g);
+	}
+
+	if(g == rootKey) {
+	  rootKey = current;
+	}
+      
+      }
+  }
 }
 
 Node* splayTree::access(int i) {
-  return splay(this->rootKey, i);
+  Node *splayMe = findKey(i, rootKey); //node that will be splayed
+
+  splay(splayMe); //splayMe will become the new root
+
+  return splayMe; //returns whatever will be the new root
+  /*
+  if(splayMe->key == i) {
+    return splayMe;
+  } else  {
+    return NULL;
+  }
+*/
+}
+
+//find largest key in T1 and SPLAY IT!!
+
+Node* splayTree::join(Node *T1, Node *T2) {
+  
+
+  return NULL;
+}
+
+std::pair<Node*, Node*> splayTree::split(int i, Node *input) {
+
 }
 
 void splayTree::insert(int i) {
   std::cout<<"in insert"<<std::endl;
+
+  Node *n = findKey(i, rootKey);
+  if(n->key == i) {
+    //key was found in tree
+    std::cout<<"item "<<i<<" not inserted; already present"<<std::endl;
+  } else {
+    //key not in tree, insert it here
+
+    //split(2)
+    //
+
+    std::cout<<"item "<<i<<" inserted"<<std::endl;
+  }
+  
   return;
 }
+
 
 void splayTree::remove(int i) {
   std::cout<<"in remove"<<std::endl;
@@ -93,7 +188,13 @@ void splayTree::remove(int i) {
 
 void splayTree::find(int i) {
   std::cout<<"in find"<<std::endl;
-  return;
+
+  Node *n = access(i);
+  if(n->key != i) {
+    std::cout<<"item "<<i<<" not found."<<std::endl; 
+  } else {
+    std::cout<<"item "<<i<<" found."<<std::endl; 
+  }
 }
 
 void splayTree::print() {

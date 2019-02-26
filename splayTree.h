@@ -9,6 +9,7 @@
 
 struct Node {
   int key;
+  Node *parent;
   Node *left;
   Node *right;
 };
@@ -18,19 +19,16 @@ class splayTree {
   //Constructor
   splayTree();
 
-  Node* rightRotate(struct Node* oldRoot);
-  Node* leftRotate(struct Node* oldRoot);
-
-  Node* splay(struct Node* root, int key);
+  Node* rightRotate(Node *oldRoot);
+  Node* leftRotate(Node *oldRoot);
+  Node* findKey(int findMe, Node *n);
+  void splay(Node *current);
+  
 
   void print();
-
-
-
-
   
   //Checks to see if item i is in the tree, prints appropriate message
-  std::string find(int i);
+  void find(int i);
 
   //Insert item i, prints error message if it's already in the tree
   void insert (int i);
@@ -44,19 +42,18 @@ class splayTree {
   //
   //IF search reaches a NULL Node (i isn't in tree)...
   //splay the last non-null node but return NULL
-  struct Node* access(int i);
+  Node* access(int i);
 
   //Combines trees into a single tree and returns new tree
   //Access the largest key in left -> i
   //Splay so i is the root of left
   //then attach right
-  struct Node* join(Node *left, Node *right);
+  Node* join(Node *T1, Node *T2);
 
   //Splits tree t at key i
   //call Access(i)
   //if the root has a key > i, then break the left child link from the root, return 2 subtrees
-  //OR break the right child link from the root and return the 2 subtrees
-  
+  //OR break the right child link from the root and return the 2 subtrees  
   std::pair<Node*, Node*> split(int i, Node *input);
   
  private:
