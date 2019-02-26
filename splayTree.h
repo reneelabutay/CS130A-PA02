@@ -26,6 +26,8 @@ class splayTree {
   
 
   void print();
+  int findHeight(Node *n);
+  void printGivenLevel(Node *root, int level);
   
   //Checks to see if item i is in the tree, prints appropriate message
   void find(int i);
@@ -35,7 +37,7 @@ class splayTree {
 
   //Delete item i, prints error message if not contained in tree
   void remove(int i);
-  
+  int findMax(Node *n);
   //Search down root to look for i
   //Reaches Node x that has i
   //splays at x and returns pointer to x
