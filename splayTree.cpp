@@ -14,7 +14,7 @@ splayTree::splayTree() {
 Node* newNode(int i) {
   Node *n = new Node;
   n->key = i;
-  n->left = n->right n->parent = NULL;
+  n->left = n->right = n->parent = NULL;
   return n;
 }
 
@@ -28,7 +28,7 @@ void splayTree::rightRotate(Node* oldRoot) {
 void splayTree::leftRotate(Node* oldRoot) {
   Node *y = oldRoot->right;
   oldRoot->right = y->left;
-  y->left = x;
+  y->left = oldRoot;
   return;
 }
 /*
@@ -78,7 +78,10 @@ Node* splayTree::splay(Node* root, int key) {
 }*/
 
 Node* splayTree::findKey(int findMe, Node *n) {
-  if (n = NULL) {
+  std::cout<<"in findKey, n is "<<n->key<<std::endl;
+  if (n == NULL && n->parent == NULL) {
+    return NULL;
+  } else if (n == NULL && n->parent != NULL) {
     return n->parent;
   }
   if(findMe == n->key) {
@@ -88,6 +91,7 @@ Node* splayTree::findKey(int findMe, Node *n) {
     return findKey(findMe, n->left);
   }
   else {
+    std::cout<<findMe<<" is bigger than "<<n->key<<std::endl;
     return findKey(findMe, n->right);
   }
 }
@@ -157,25 +161,62 @@ Node* splayTree::join(Node *T1, Node *T2) {
   return NULL;
 }
 
-std::pair<Node*, Node*> splayTree::split(int i, Node *input) {
+std::pair<Node*, Node*> splayTree::split(int i, Node *tree) {
+  std::cout<<"in split"<<std::endl;
+  Node *n = access(i); //whatever the new root is
+  std::pair<Node*, Node*> twoTrees;
+  twoTrees.second = n->right;
+  twoTrees.first = n;
+  twoTrees.first->right = NULL;
+  twoTrees.second->parent = NULL;
 
+  return twoTrees;
 }
 
 void splayTree::insert(int i) {
-  std::cout<<"in insert"<<std::endl;
+  
+  std::cout<<"inserting "<<i<<std::endl;
+  //empty tree
+  if(rootKey == NULL) {
+    Node *insertMe = newNode(i);
+    rootKey = insertMe;
+    return;
+  }
 
-  Node *n = findKey(i, rootKey);
+  std::pair<Node*, Node*> subtrees = split(i, rootKey); //splits the tree into 2 subtrees
+
+  if(subtrees.first->key == i) {
+    std::cout<<"already in tree"<<std::endl;
+  } else {
+    Node *insertMe = newNode(i);
+    insertMe->left = subtrees.first;
+    insertMe->right = subtrees.second;
+    rootKey = insertMe;
+    std::cout<<"item "<<i<<" inserted"<<std::endl; 
+  }
+
+  
+  
+  //Node *n = findKey(i, rootKey);
+  /*
+  std::cout<<n->key<<" is n"<<std::endl;
   if(n->key == i) {
     //key was found in tree
     std::cout<<"item "<<i<<" not inserted; already present"<<std::endl;
   } else {
     //key not in tree, insert it here
 
-    //split(2)
-    //
+    std::pair<Node*, Node*> subtrees = split(i, rootKey); //splits the tree into 2 subtrees
 
+    Node *insertMe = newNode(i);
+
+    insertMe->left = subtrees.first;
+    insertMe->right = subtrees.second;
+
+    rootKey = insertMe;
+    
     std::cout<<"item "<<i<<" inserted"<<std::endl;
-  }
+  }*/
   
   return;
 }
@@ -189,12 +230,13 @@ void splayTree::remove(int i) {
 void splayTree::find(int i) {
   std::cout<<"in find"<<std::endl;
 
-  Node *n = access(i);
+  Node *n = access(i); //returns the new root
   if(n->key != i) {
     std::cout<<"item "<<i<<" not found."<<std::endl; 
   } else {
     std::cout<<"item "<<i<<" found."<<std::endl; 
   }
+  return;
 }
 
 void splayTree::print() {

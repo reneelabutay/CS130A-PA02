@@ -19,8 +19,8 @@ class splayTree {
   //Constructor
   splayTree();
 
-  Node* rightRotate(Node *oldRoot);
-  Node* leftRotate(Node *oldRoot);
+  void rightRotate(Node *oldRoot);
+  void leftRotate(Node *oldRoot);
   Node* findKey(int findMe, Node *n);
   void splay(Node *current);
   
