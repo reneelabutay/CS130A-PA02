@@ -19,6 +19,13 @@ Node* newNode(int i) {
 }
 
 void splayTree::rightRotate(Node* oldRoot) {
+  std::cout<<"right rotation..."<<std::endl;
+  Node *parent_OR = oldRoot->parent;
+  if(parent_OR) {
+    std::cout<<"parent_OR "<<parent_OR->key<<" (5)"<<std::endl;
+  } else {
+    std::cout<<"old root is the root"<<std::endl;
+  }
   Node *y = oldRoot->left;
   oldRoot->left = y->right;
   if(y->right) {
@@ -26,10 +33,13 @@ void splayTree::rightRotate(Node* oldRoot) {
   }
   y->right = oldRoot;
   oldRoot->parent = y;
+
+  std::cout<<"y value...."<<y->key<<std::endl;
   return;
 }
 
 void splayTree::leftRotate(Node* oldRoot) {
+  std::cout<<"left rotation..."<<std::endl;
   Node *y = oldRoot->right;
   oldRoot->right = y->left;
   if(y->left) {
@@ -39,64 +49,16 @@ void splayTree::leftRotate(Node* oldRoot) {
   oldRoot->parent = y;
   return;
 }
-/*
-Node* splayTree::splay(Node* root, int key) {
-  if(root == NULL || root->key == key) {
-    return root;
-  }
-  //traverse down left subtree
-  if(key < root->key){
-    if(root->left == NULL) {
-      return root;
-    }
-    //go on left child's left subtree
-    if(root->left->key > key) {
-      root->left->left = splay(root->left->left, key);
-      root = rightRotate(root);
-
-      //go down left child's right tree
-    } else if (root->left->key < key) {
-      root->left->right = splay(root->left->right, key);
-      if(root->left->right != NULL) {
-	root->left = leftRotate(root->left);
-      }
-    }
-    return rightRotate(root); //could be wrong
-  }
-  
-  else if (key > root->key) {
-      
-    if(root->right == NULL) {
-      return root;
-    }
-
-    if(root->right->key > key) {
-      root->right->left = splay(root->right->left, key);
-
-      if(root->right->left != NULL) {
-	root->right = rightRotate(root->right);
-      }
-      
-    }} else if(root->right->key < key) { //zag-zag
-      root->right->right = splay(root->right->right, key);
-      root = leftRotate(root);
-    }
-    return leftRotate(root); //could be wrong
-  }
-}*/
 
 Node* splayTree::findKey(int findMe, Node *n) {
   std::cout<<"in findKey, n is "<<std::endl;
-
   
   if(findMe == n->key) {
     std::cout<<"found "<<n->key<<" in tree!"<<std::endl;
     return n;
   } else if(findMe < n->key && n->left != NULL) {
-    //std::cout<<"returning n's leftsubtree"<<std::endl;
     return findKey(findMe, n->left);
   } else if(findMe > n->key && n->right != NULL) {
-    //std::cout<<findMe<<" is bigger than "<<n->key<<std::endl;
     return findKey(findMe, n->right);
   } else if(findMe < n->key && n->left == NULL) {
     return n;
@@ -109,21 +71,20 @@ Node* splayTree::findKey(int findMe, Node *n) {
 
 void splayTree::splay(Node *current) {
   std::cout<<"\n"<<std::endl;
-  std::cout<<"in splay func... splaying "<<current->key<<std::endl;
+  std::cout<<"IN SPLAYFUNC...SPLAYING "<<current->key<<std::endl;
   std::cout<<"before: ";
   print();
-  //Node *p = current->parent;
-  //std::cout<<"p: "<<p->key<<std::endl;
-  //Node *g = current->parent->parent;
 
-  //std::cout<<"p: "<<p->key<<" and g: "<<g->key<<std::endl;
+  Node *p = current->parent;
+  Node *g = current->parent->parent;
 
-  //ERROR: NEED TO UPDATE CURRENT
+  std::cout<<"p: "<<p->key<<" and g: "<<g->key<<std::endl;
+  
   while(current != rootKey) {
     std::cout<<"current is "<<current->key<<std::endl;
-    Node *p = current->parent;
+    //Node *p = current->parent;
     std::cout<<"p: "<<p->key<<std::endl;
-    Node *g = current->parent->parent;
+    //Node *g = current->parent->parent;
     std::cout<<"p: "<<p->key<<" and g: "<<g->key<<std::endl;
 
 
@@ -140,19 +101,31 @@ void splayTree::splay(Node *current) {
     else
       {
 	if(g->left && g->left->left == current) {
+
+	  Node *GGparent = g->parent;
 	  //std::cout<<"before: ";
 	  print();
 	  std::cout<<"right-right rotation"<<std::endl;
 	  rightRotate(g);
-	  //std::cout<<"first is done"<<std::endl;
-	  print();
-	  std::cout<<"second rot"<<std::endl;
+	  
+	  std::cout<<"after 1st right rotation.. "<<std::endl;
+	  std::cout<<"current = "<<current->key<<std::endl;
+	  std::cout<<"p =  "<<p->key<<std::endl;
+	  std::cout<<"g =  "<<g->key<<std::endl;
+	  
 	  rightRotate(p);
-	  print();
-	  if(g == rootKey) {
+
+	  std::cout<<"after 2nd right rotation.. "<<std::endl;
+	  
+          if(g == rootKey) {
 	    //grandparent is the root, so make current the new root
 	    rootKey = current;
+	  } else  {
+	    current->parent = GGparent;
+	    std::cout<<"current->parent is NOW"<<current->parent->key<<std::endl;
+	    GGparent->left = current;
 	  }
+	  
 	} else if(g->right && g->right->right == current) {
 	  std::cout<<"left-left rotation"<<std::endl;
 	  leftRotate(g);
@@ -173,6 +146,8 @@ void splayTree::splay(Node *current) {
 	}
       
       }
+    p = current->parent;
+    g = p->parent;
     //have to update current
   }
   std::cout<<"end of splay func"<<std::endl;
@@ -184,19 +159,10 @@ Node* splayTree::access(int i) {
   std::cout<<"splayMe's key: "<<splayMe->key<<std::endl;
 
   if(rootKey != splayMe) {
-    std::cout<<"splaying"<<std::endl;
     splay(splayMe);
   }
-  //splay(splayMe); //splayMe will become the new root
-  //std::cout<<"splay func DONE"<<std::endl;
   return splayMe; //returns whatever will be the new root
-  /*
-  if(splayMe->key == i) {
-    return splayMe;
-  } else  {
-    return NULL;
-  }
-*/
+  
 }
 
 std::pair<Node*, Node*> splayTree::split(int i, Node *tree) {
@@ -384,8 +350,9 @@ void splayTree::printGivenLevel(Node *root, int level) {
   if(level == 1) {
     std::cout<<root->key<<" ";
   } else if (level > 1) {
+    
     printGivenLevel(root->left, level-1);
-
+    
     printGivenLevel(root->right, level-1);
     //std::cout<<"\n";
   }
