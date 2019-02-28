@@ -19,7 +19,7 @@ Node* newNode(int i) {
 }
 
 void splayTree::rightRotate(Node* oldRoot) {
-  
+  Node *oldRoot_parent = oldRoot->parent;
   Node *y = oldRoot->left;
   oldRoot->left = y->right;
   if(y->right) {
@@ -28,11 +28,19 @@ void splayTree::rightRotate(Node* oldRoot) {
   y->right = oldRoot;
   oldRoot->parent = y;
 
+  if(oldRoot_parent && oldRoot_parent->right == oldRoot) {
+    oldRoot_parent->right = y;
+    y->parent = oldRoot_parent;
+  } else if(oldRoot_parent && oldRoot_parent->left == oldRoot) {
+    oldRoot_parent->left = y;
+    y->parent = oldRoot_parent;
+  }
+
   return;
 }
 
 void splayTree::leftRotate(Node* oldRoot) {
-
+  
   Node *y = oldRoot->right;
   oldRoot->right = y->left;
   if(y->left) {
@@ -40,6 +48,18 @@ void splayTree::leftRotate(Node* oldRoot) {
   }
   y->left = oldRoot;
   oldRoot->parent = y;
+
+  
+  /*  
+  if(oldRoot_parent && oldRoot_parent->right == oldRoot) {
+    std::cout<<"in if"<<std::endl;
+    oldRoot_parent->right = y;
+    y->parent = oldRoot_parent;
+    std::cout<<"y's new parent(1) = "<<y->parent->key<<std::endl;
+  } else if(oldRoot_parent && oldRoot_parent->left == oldRoot) {
+    oldRoot_parent->left = y;
+    y->parent =	oldRoot_parent;
+    }*/
   return;
 }
 
@@ -67,11 +87,13 @@ void splayTree::splay(Node *current) {
   while(current != rootKey) {
 
     if(p == rootKey)
-      { //single rotation (zig or zag)
+      { 
 	if(p->left == current) {
+	  //std::cout<<"single right rotation"<<std::endl;
 	  rightRotate(p);
 	  current->parent = NULL;
 	} else {
+	  //std::cout<<"single left rotation"<<std::endl;
 	  leftRotate(p);
 	}
 	rootKey = current;
@@ -80,7 +102,7 @@ void splayTree::splay(Node *current) {
     else
       {
 	if(g->left && g->left->left == current) {
-
+	  //std::cout<<"2 right rotations"<<std::endl;
 	  Node *GGparent = g->parent;
 	  rightRotate(g);
 	  rightRotate(p);
@@ -94,7 +116,7 @@ void splayTree::splay(Node *current) {
 	  }
 	  
 	} else if(g->right && g->right->right == current) {
-
+	  //std::cout<<"2 left rotations"<<std::endl;
 	  Node *GGparent = g->parent;
 	  leftRotate(g);
 	  leftRotate(p);
@@ -106,21 +128,33 @@ void splayTree::splay(Node *current) {
 	    GGparent->right = current;
 	  }
 	} else if(g->left && g->left->right == current) {
+	  //std::cout<<"double: left, right rotation"<<std::endl;
+       
 	  leftRotate(p);
 	  rightRotate(g);
 	} else {
+	  //std::cout<<"double: right, left rotation"<<std::endl;
+	  Node *GGparent = g->parent;
 	  rightRotate(p);
 	  leftRotate(g);
+	  if(g == rootKey) {
+	    rootKey = current;
+	  } else {
+	    current->parent = GGparent;
+	    if(GGparent->right && GGparent->right == g) {
+	      GGparent->right = current;
+	    } else {
+	      GGparent->left = current;
+	    }
+	  }
 	}
 	if(g == rootKey) {
 	  rootKey = current;
 	}
       
       }
-    
     p = current->parent;
     g = p->parent;
-    //have to update current
   }
 }
 
@@ -160,42 +194,21 @@ std::pair<Node*, Node*> splayTree::split(int i, Node *tree) {
 }
 
 void splayTree::insert(int i) {
-  //  std::cout<<"INSERTING "<<i<<std::endl;
   //empty tree
   if(rootKey == NULL) {
     Node *insertMe = newNode(i);
     rootKey = insertMe;
     std::cout<<"item "<<i<<" inserted"<<std::endl;
-    //std::cout<<"at end of insert"<<std::endl;
     return;
   }
 
   std::pair<Node*, Node*> subtrees = split(i, rootKey); //splits the tree into 2 subtrees
-  /*
-  //tracing code
-  std::cout<<"printing subtrees..."<<std::endl;
-  if(subtrees.first) {
-    std::cout<<"subtrees.first = "<<subtrees.first->key<<std::endl;
-  } else {
-    std::cout<<"subtrees.first = NULL "<<std::endl;
-  }
-  if(subtrees.second) {
-    std::cout<<"subtrees.second = "<<subtrees.second->key<<std::endl;
-  } else {
-    std::cout<<"subtrees.second = NULL"<<std::endl;
-  }
-  std::cout<<"before if-else"<<std::endl;
-  */
-  //seg fault after this (in input2.txt)
 
   if(subtrees.first && subtrees.first->key == i) {
-    //std::cout<<"in if statement"<<std::endl;
-    //std::cout<<"item "<<subtrees.first->key<<" not inserted; already present"<<std::endl;
+    std::cout<<"item "<<subtrees.first->key<<" not inserted; already present"<<std::endl;
     
   } else {
-    //std::cout<<"in else"<<std::endl;
     Node *insertMe = newNode(i);
-    //std::cout<<"insertMe->key = "<<insertMe->key<<std::endl;
     insertMe->left = subtrees.first;
     insertMe->right = subtrees.second;
     rootKey = insertMe;
@@ -207,7 +220,6 @@ void splayTree::insert(int i) {
     }
     std::cout<<"item "<<i<<" inserted"<<std::endl;
   }
-  //std::cout<<"at end of insert"<<std::endl;
   return;
 }
 
@@ -255,7 +267,6 @@ void splayTree::remove(int i) {
 
     std::cout<<"item "<<i<<" deleted"<<std::endl;
   }
-  
   return;
 }
 
@@ -271,10 +282,10 @@ void splayTree::find(int i) {
 }
 
 int splayTree::findHeight(Node *n) {
+ 
   if(n == NULL) {
     return 0;
   } else {
-    
     int lheight = findHeight(n->left);
     int rheight = findHeight(n->right);
 
@@ -299,7 +310,6 @@ void splayTree::printGivenLevel(Node *root, int level) {
     printGivenLevel(root->right, level-1);
 
   }
-
 
 }
 
