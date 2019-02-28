@@ -138,7 +138,6 @@ std::pair<Node*, Node*> splayTree::split(int i, Node *tree) {
   Node *n = access(i); //whatever the new root is
   std::pair<Node*, Node*> twoTrees;
 
-  //new code:
   if(i >= n->key) { //if i is less than root of tree
     twoTrees.first = n;
     twoTrees.second = n->right;
@@ -157,31 +156,46 @@ std::pair<Node*, Node*> splayTree::split(int i, Node *tree) {
       twoTrees.first->parent = NULL;
     }
   }
-
   return twoTrees;
-  
 }
 
 void splayTree::insert(int i) {
+  //  std::cout<<"INSERTING "<<i<<std::endl;
   //empty tree
   if(rootKey == NULL) {
     Node *insertMe = newNode(i);
     rootKey = insertMe;
     std::cout<<"item "<<i<<" inserted"<<std::endl;
+    //std::cout<<"at end of insert"<<std::endl;
     return;
   }
 
   std::pair<Node*, Node*> subtrees = split(i, rootKey); //splits the tree into 2 subtrees
-
-  //std::cout<<"before if-else"<<std::endl;
+  /*
+  //tracing code
+  std::cout<<"printing subtrees..."<<std::endl;
+  if(subtrees.first) {
+    std::cout<<"subtrees.first = "<<subtrees.first->key<<std::endl;
+  } else {
+    std::cout<<"subtrees.first = NULL "<<std::endl;
+  }
+  if(subtrees.second) {
+    std::cout<<"subtrees.second = "<<subtrees.second->key<<std::endl;
+  } else {
+    std::cout<<"subtrees.second = NULL"<<std::endl;
+  }
+  std::cout<<"before if-else"<<std::endl;
+  */
   //seg fault after this (in input2.txt)
 
-  if(subtrees.first->key == i) {
-    std::cout<<"item "<<subtrees.first->key<<" not inserted; already present"<<std::endl;
-  } else {
-
-    Node *insertMe = newNode(i);
+  if(subtrees.first && subtrees.first->key == i) {
+    //std::cout<<"in if statement"<<std::endl;
+    //std::cout<<"item "<<subtrees.first->key<<" not inserted; already present"<<std::endl;
     
+  } else {
+    //std::cout<<"in else"<<std::endl;
+    Node *insertMe = newNode(i);
+    //std::cout<<"insertMe->key = "<<insertMe->key<<std::endl;
     insertMe->left = subtrees.first;
     insertMe->right = subtrees.second;
     rootKey = insertMe;
@@ -193,7 +207,7 @@ void splayTree::insert(int i) {
     }
     std::cout<<"item "<<i<<" inserted"<<std::endl;
   }
-
+  //std::cout<<"at end of insert"<<std::endl;
   return;
 }
 
